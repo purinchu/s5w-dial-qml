@@ -85,6 +85,7 @@ Item {
             strokeColor: "black"
             strokeWidth: 1.6
             fillColor: "transparent"
+            capStyle: ShapePath.FlatCap
 
             PathSvg {
                 function genPathString(min, max, numTicks) {
@@ -141,6 +142,25 @@ Item {
                             base_dial.numTicks)
                         });
                 }
+            }
+        }
+
+        ShapePath {
+            id: "shape_back_inner_ring"
+
+            strokeColor: "darkgray"
+            strokeWidth: 0.5
+            fillColor: "transparent"
+
+            startX: 90 * Math.sin(Math.PI * base_dial.g_zero_scale / 180.0)
+            startY: -90 * Math.cos(Math.PI * base_dial.g_zero_scale / 180.0)
+
+            PathArc {
+                x: -shape_back_inner_ring.startX
+                y:  shape_back_inner_ring.startY
+                radiusX: 90
+                radiusY: 90
+                useLargeArc: true
             }
         }
     }
