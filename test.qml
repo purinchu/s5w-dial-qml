@@ -236,6 +236,19 @@ Item {
                 useLargeArc: false
             }
         }
+
+        ShapePath {
+            strokeColor: "transparent"
+            fillColor: "black"
+
+            PathText {
+                x: -20
+                y: 52
+                font.family: "Noto Sans Condensed"
+                font.pointSize: 6.5
+                text: "Label (%)"
+            }
+        }
     }
 
     Shape {
