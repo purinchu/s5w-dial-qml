@@ -163,6 +163,33 @@ Item {
                 useLargeArc: true
             }
         }
+
+        ShapePath {
+            id: "shape_back_label_base"
+
+            strokeColor: "black"
+            strokeWidth: 1.0
+            fillColor: "white"
+
+            startX: -73
+            startY: 72
+
+            PathCubic {
+                x: -19; y: 44
+                control1X: -52; control1Y: 55;
+                control2X: -38; control2Y: 48;
+            }
+
+            PathMove {
+                x: 19; y: 44
+            }
+
+            PathCubic {
+                x: 73; y: 72
+                control1X: 38; control1Y: 48;
+                control2X: 52; control2Y: 55;
+            }
+        }
     }
 
     Shape {
