@@ -110,8 +110,8 @@ Item {
             loops: Animation.Infinite
             running: true
 
-            NumberAnimation { to: -75.0; duration: 3000; easing.type: Easing.InOutCubic }
-            NumberAnimation { to:  75.0; duration: 3000; easing.type: Easing.InOutCubic }
+            NumberAnimation { to: -130.0; duration: 3000; easing.type: Easing.InOutCubic }
+            NumberAnimation { to:  130.0; duration: 3000; easing.type: Easing.InOutCubic }
         }
 
         transform: [
