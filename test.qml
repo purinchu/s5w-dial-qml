@@ -10,7 +10,10 @@ Item {
 
     property real minimum: 0.0
     property real maximum: 100.0
-    property real tickStep: 20.0
+    property int numTicks: 8
+
+    readonly property real g_zero_scale: -130.0
+    readonly property real g_full_scale:  130.0
 
     // The face metrics are based around a geometry from (-100, -100) to (100,
     // 100), with the center at (0, 0)
@@ -79,13 +82,55 @@ Item {
         ShapePath {
             id: "shape_back_tick_marks"
 
-            strokeColor: "darkgray"
-            strokeWidth: 1.4
+            strokeColor: "black"
+            strokeWidth: 1.6
             fillColor: "transparent"
 
             PathSvg {
-                function genPathString(min, max, step) {
-                    return "M 0 -90 L 0 -98 M -90 0 L -98 0 M 90 0 L 98 0 z";
+                function genPathString(min, max, numTicks) {
+                    if(numTicks < 2 || (Math.abs(max - min) < Number.EPSILON))
+                        return "z";
+
+                    // tickStep in terms of displayed input
+                    var tickStep = (max - min) / numTicks;
+
+                    // Where the marker line starts and ends with no rotation
+                    // applied
+                    const markStart = Qt.vector3d(0.0, -98, 0);
+                    const markEnd   = Qt.vector3d(0.0, -90, 0);
+
+                    // start to end deflection in radians
+                    var radFullDefl = ((g_full_scale - g_zero_scale) * Math.PI / 180.0);
+                    var radStep = radFullDefl / numTicks;
+                    var radStart = -radFullDefl / 2; // we're centered around 0
+                    var radEnd = radFullDefl / 2;
+
+                    // the SVG path string
+                    var svgString = "";
+
+                    var x = radStart; // the loop var
+
+                    while(x <= radEnd) {
+                        // Get new rotation matrix and modify our vector
+
+                        var rotMatrix = Qt.matrix4x4(
+                            Math.cos(x), -Math.sin(x), 0, 0,
+                            Math.sin(x),  Math.cos(x), 0, 0,
+                            0          ,  0          , 1, 0,
+                            0          ,  0          , 0, 1
+                            );
+
+                        var pathStart = rotMatrix.times(markStart);
+                        var pathEnd   = rotMatrix.times(markEnd);
+
+                        svgString += "M " + pathStart.x.toFixed(1) + " " + pathStart.y.toFixed(1);
+                        svgString += "L " + pathEnd.x.toFixed(1)   + " " + pathEnd.y.toFixed(1) + " ";
+
+                        x += radStep;
+                    }
+
+                    svgString += "z";
+                    return svgString;
                 }
 
                 Component.onCompleted: {
@@ -93,7 +138,7 @@ Item {
                         return genPathString(
                             base_dial.minimum,
                             base_dial.maximum,
-                            base_dial.tickStep)
+                            base_dial.numTicks)
                         });
                 }
             }
@@ -104,6 +149,9 @@ Item {
         id: "shape_needle"
         z: 2
 
+        // Full zero deflection (far left) is -130.0
+        // Full max deflection (far right) is 130.0
+        // Half-way deflection (middle) is 0.0
         property real deflection: -30.0
 
         SequentialAnimation on deflection {
