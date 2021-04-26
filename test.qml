@@ -119,12 +119,12 @@ Item {
         ]
 
         ShapePath {
-            strokeColor: "black"
+            strokeColor: "darkgray"
             strokeWidth: 0
 
             id: "path_needle"
 
-            fillColor: "darkgray"
+            fillColor: "#323232"
 
             startX: 10
             startY: -5
@@ -154,6 +154,16 @@ Item {
             }
 
             PathLine { x: 10; y: -5 }
+        }
+
+        ShapePath {
+            strokeColor: "darkgray"
+            strokeWidth: 0.4
+
+            startX: 0
+            startY: 0
+
+            PathLine { x: 0; y: -84 }
         }
     }
 
