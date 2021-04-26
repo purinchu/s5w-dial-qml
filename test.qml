@@ -190,6 +190,52 @@ Item {
                 control2X: 52; control2Y: 55;
             }
         }
+
+        ShapePath {
+            id: "shape_label_base_egg"
+
+            strokeColor: "transparent"
+            fillGradient: LinearGradient {
+                x1: 0; y1: 80
+                x2: 0; y2: 90
+                spread: ShapeGradient.ReflectSpread
+                GradientStop { position: 0; color: "black" }
+                GradientStop { position: 0.5; color: "darkGray" }
+                GradientStop { position: 1; color: "black" }
+            }
+
+            startX: -57.636
+            startY: 79.26
+
+            PathArc {
+                x: -shape_label_base_egg.startX; y: shape_label_base_egg.startY
+                radiusX: 80; radiusY: 40
+                useLargeArc: false
+            }
+
+            PathArc {
+                x: shape_label_base_egg.startX; y: shape_label_base_egg.startY
+                radiusX: 98; radiusY: 98
+                useLargeArc: false
+            }
+        }
+
+        ShapePath {
+            id: "shape_label_base_egg_outline"
+
+            strokeColor: "black"
+            strokeWidth: 0.5
+            fillColor: "transparent"
+
+            startX: -57.636
+            startY: 79.26
+
+            PathArc {
+                x: -shape_label_base_egg.startX; y: shape_label_base_egg.startY
+                radiusX: 80; radiusY: 40
+                useLargeArc: false
+            }
+        }
     }
 
     Shape {
