@@ -16,9 +16,15 @@ Item {
     readonly property real g_full_scale:  130.0
     readonly property color g_clr_ring: "#242424"
 
+    // Shows a red band for warning/danger areas
     property bool useWarningArea: true
     property real warnLow: 80.0
     property real warnHigh: 100.0
+
+    // Shows a green band for normal operating area
+    property bool useDesiredArea: true
+    property real desiredLow: 40.0
+    property real desiredHigh: 60.0
 
     // Returns angle in degrees for the given value, where minimum == g_zero_scale
     // and maximum == g_full_scale
@@ -87,6 +93,40 @@ Item {
                 radiusX: 98
                 radiusY: 98
                 useLargeArc: false
+            }
+        }
+
+        ShapePath {
+            id: "shape_desired_band"
+
+            strokeColor: "transparent"
+            fillColor: (base_dial.useDesiredArea
+                && base_dial.minimum <= base_dial.desiredLow
+                && base_dial.maximum >= base_dial.desiredHigh
+                && base_dial.desiredLow < base_dial.desiredHigh) ? "limegreen" : "transparent"
+
+            PathAngleArc {
+                centerX: 0; centerY: 0
+                radiusX: 90; radiusY: 90
+                startAngle: valueToDegrees(base_dial.desiredLow) - 90 // 90 deg, not 90 len
+                sweepAngle: valueToDegrees(base_dial.desiredHigh) - valueToDegrees(base_dial.desiredLow)
+            }
+
+            PathLine {
+                x:  98 * Math.sin(valueToDegrees(base_dial.desiredHigh) * Math.PI / 180)
+                y: -98 * Math.cos(valueToDegrees(base_dial.desiredHigh) * Math.PI / 180)
+            }
+
+            PathAngleArc {
+                centerX: 0; centerY: 0
+                radiusX: 98; radiusY: 98
+                startAngle: valueToDegrees(base_dial.desiredHigh) - 90 // 90 deg, not 90 len
+                sweepAngle: valueToDegrees(base_dial.desiredLow) - valueToDegrees(base_dial.desiredHigh)
+            }
+
+            PathLine {
+                x:  90 * Math.sin(valueToDegrees(base_dial.desiredLow) * Math.PI / 180)
+                y: -90 * Math.cos(valueToDegrees(base_dial.desiredLow) * Math.PI / 180)
             }
         }
 
