@@ -12,6 +12,16 @@ Item {
     property real maximum: 100.0
     property int numTicks: 8
 
+    property real value: 50.0
+
+    SequentialAnimation on value {
+        loops: Animation.Infinite
+        running: true
+
+        NumberAnimation { to: base_dial.minimum; duration: 3000; easing.type: Easing.InOutCubic }
+        NumberAnimation { to: base_dial.maximum; duration: 3000; easing.type: Easing.InOutCubic }
+    }
+
     readonly property real g_zero_scale: -130.0
     readonly property real g_full_scale:  130.0
     readonly property color g_clr_ring: "#242424"
@@ -382,15 +392,7 @@ Item {
         // Full zero deflection (far left) is -130.0
         // Full max deflection (far right) is 130.0
         // Half-way deflection (middle) is 0.0
-        property real deflection: -30.0
-
-        SequentialAnimation on deflection {
-            loops: Animation.Infinite
-            running: true
-
-            NumberAnimation { to: -130.0; duration: 3000; easing.type: Easing.InOutCubic }
-            NumberAnimation { to:  130.0; duration: 3000; easing.type: Easing.InOutCubic }
-        }
+        property real deflection: valueToDegrees(base_dial.value)
 
         transform: [
             Rotation { origin.x: 0; origin.y: 0; angle: shape_needle.deflection }
