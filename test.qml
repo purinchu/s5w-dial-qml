@@ -14,6 +14,7 @@ Item {
 
     readonly property real g_zero_scale: -130.0
     readonly property real g_full_scale:  130.0
+    readonly property color g_clr_ring: "#242424"
 
     property bool useWarningArea: true
     property real warnLow: 80.0
@@ -127,7 +128,7 @@ Item {
             id: "shape_back_outer_ring"
 
             strokeColor: "black"
-            strokeWidth: 0.5
+            strokeWidth: 0.7
             fillColor: "transparent"
 
             startX: 0
@@ -191,7 +192,7 @@ Item {
         ShapePath {
             id: "shape_back_tick_marks_minor"
 
-            strokeColor: "gray"
+            strokeColor: base_dial.g_clr_ring
             strokeWidth: 1.0
             fillColor: "transparent"
             capStyle: ShapePath.FlatCap
@@ -243,8 +244,8 @@ Item {
         ShapePath {
             id: "shape_back_inner_ring"
 
-            strokeColor: "darkgray"
-            strokeWidth: 0.5
+            strokeColor: base_dial.g_clr_ring
+            strokeWidth: 0.9
             fillColor: "transparent"
 
             startX: 90 * Math.sin(Math.PI * base_dial.g_zero_scale / 180.0)
@@ -320,7 +321,7 @@ Item {
             id: "shape_label_base_egg_outline"
 
             strokeColor: "black"
-            strokeWidth: 0.5
+            strokeWidth: 0.7
             fillColor: "transparent"
 
             startX: -57.636
@@ -357,7 +358,7 @@ Item {
 
         ShapePath {
             strokeColor: "darkgray"
-            strokeWidth: 0
+            strokeWidth: 0.4
 
             id: "path_needle"
 
@@ -410,7 +411,7 @@ Item {
 
         ShapePath {
             strokeColor: "black"
-            strokeWidth: 0
+            strokeWidth: 0.9
 
             fillColor: "white"
 
@@ -438,7 +439,7 @@ Item {
         width: 72
 
         font.family: "Noto Sans Condensed"
-        font.pointSize: 6.5
+        font.pointSize: 7.9
         horizontalAlignment: Text.AlignHCenter
         textFormat: Text.PlainText
         text: "Label"
@@ -468,9 +469,9 @@ Item {
         model: label_model
 
         Text {
-            x: +87.5 * Math.sin(angle * Math.PI / 180.0) - (itWidth / 2)
+            x: +86.5 * Math.sin(angle * Math.PI / 180.0) - (itWidth / 2)
                - (Math.sin(angle * Math.PI / 180.0) * (itWidth / 2))
-            y: -87.5 * Math.cos(angle * Math.PI / 180.0) - (itHeight / 2)
+            y: -86.5 * Math.cos(angle * Math.PI / 180.0) - (itHeight / 2)
                + (Math.cos(angle * Math.PI / 180.0) * (itHeight / 2))
             z: 1
             width: itWidth
@@ -478,7 +479,7 @@ Item {
             color: "black"
 
             font.family: "Noto Sans Condensed"
-            font.pointSize: 6.0
+            font.pointSize: 7.0
             horizontalAlignment: (angle < -45.0)
                 ? Text.AlignLeft  : (angle > 45.0)
                 ? Text.AlignRight : Text.AlignHCenter
