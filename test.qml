@@ -10,7 +10,7 @@ Item {
 
     property real minimum: 0.0
     property real maximum: 100.0
-    property int numTicks: 16
+    property int numTicks: 8
 
     readonly property real g_zero_scale: -130.0
     readonly property real g_full_scale:  130.0
@@ -378,14 +378,15 @@ Item {
 
         Component.onCompleted: {
             var tickStep = (base_dial.g_full_scale - base_dial.g_zero_scale) / base_dial.numTicks;
+            var valStep  = (base_dial.maximum - base_dial.minimum) / base_dial.numTicks;
 
             for(var i = 0; i <= base_dial.numTicks; i++) {
                 var angle = base_dial.g_zero_scale + i * tickStep;
                 var obj = {
                     angle: angle,
-                    itText: "" + i,
-                    itWidth: 18,
-                    itHeight: 12,
+                    itText: (base_dial.minimum + i * valStep).toString(),
+                    itWidth: 22,
+                    itHeight: 14,
                 }
                 label_model.append(obj);
             }
