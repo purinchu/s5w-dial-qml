@@ -79,6 +79,70 @@ Item {
             }
         }
 
+        function commonGenPathString(min, max, numTicks, markStart, markEnd) {
+            if(numTicks < 2 || (Math.abs(max - min) < Number.EPSILON))
+                return "z";
+
+            // tickStep in terms of displayed input
+            var tickStep = (max - min) / numTicks;
+
+            // start to end deflection in radians
+            var radFullDefl = ((g_full_scale - g_zero_scale) * Math.PI / 180.0);
+            var radStep = radFullDefl / numTicks;
+            var radStart = -radFullDefl / 2; // we're centered around 0
+            var radEnd = radFullDefl / 2;
+
+            // the SVG path string
+            var svgString = "";
+
+            for(var i = 0; i <= numTicks; i++) {
+                var x = radStart + i * radStep;
+                // Get new rotation matrix and modify our vector
+
+                var rotMatrix = Qt.matrix4x4(
+                    Math.cos(x), -Math.sin(x), 0, 0,
+                    Math.sin(x),  Math.cos(x), 0, 0,
+                    0          ,  0          , 1, 0,
+                    0          ,  0          , 0, 1
+                    );
+
+                var pathStart = rotMatrix.times(markStart);
+                var pathEnd   = rotMatrix.times(markEnd);
+
+                svgString += "M " + pathStart.x.toFixed(1) + " " + pathStart.y.toFixed(1);
+                svgString += "L " + pathEnd.x.toFixed(1)   + " " + pathEnd.y.toFixed(1) + " ";
+            }
+
+            svgString += "z";
+            return svgString;
+        }
+
+        ShapePath {
+            id: "shape_back_tick_marks_minor"
+
+            strokeColor: "gray"
+            strokeWidth: 1.0
+            fillColor: "transparent"
+            capStyle: ShapePath.FlatCap
+
+            PathSvg {
+                function genPathString(min, max, numTicks, markStart, markEnd) {
+                    return shape_back_face.commonGenPathString(min, max, numTicks, markStart, markEnd);
+                }
+
+                Component.onCompleted: {
+                    this.path = Qt.binding(function() {
+                        return genPathString(
+                            base_dial.minimum,
+                            base_dial.maximum,
+                            base_dial.numTicks * 4,
+                            Qt.vector3d(0.0, -95, 0),
+                            Qt.vector3d(0.0, -90.2, 0))
+                        });
+                }
+            }
+        }
+
         ShapePath {
             id: "shape_back_tick_marks"
 
@@ -88,49 +152,8 @@ Item {
             capStyle: ShapePath.FlatCap
 
             PathSvg {
-                function genPathString(min, max, numTicks) {
-                    if(numTicks < 2 || (Math.abs(max - min) < Number.EPSILON))
-                        return "z";
-
-                    // tickStep in terms of displayed input
-                    var tickStep = (max - min) / numTicks;
-
-                    // Where the marker line starts and ends with no rotation
-                    // applied
-                    const markStart = Qt.vector3d(0.0, -98, 0);
-                    const markEnd   = Qt.vector3d(0.0, -90, 0);
-
-                    // start to end deflection in radians
-                    var radFullDefl = ((g_full_scale - g_zero_scale) * Math.PI / 180.0);
-                    var radStep = radFullDefl / numTicks;
-                    var radStart = -radFullDefl / 2; // we're centered around 0
-                    var radEnd = radFullDefl / 2;
-
-                    // the SVG path string
-                    var svgString = "";
-
-                    var x = radStart; // the loop var
-
-                    for(var i = 0; i <= numTicks; i++) {
-                        var x = radStart + i * radStep;
-                        // Get new rotation matrix and modify our vector
-
-                        var rotMatrix = Qt.matrix4x4(
-                            Math.cos(x), -Math.sin(x), 0, 0,
-                            Math.sin(x),  Math.cos(x), 0, 0,
-                            0          ,  0          , 1, 0,
-                            0          ,  0          , 0, 1
-                            );
-
-                        var pathStart = rotMatrix.times(markStart);
-                        var pathEnd   = rotMatrix.times(markEnd);
-
-                        svgString += "M " + pathStart.x.toFixed(1) + " " + pathStart.y.toFixed(1);
-                        svgString += "L " + pathEnd.x.toFixed(1)   + " " + pathEnd.y.toFixed(1) + " ";
-                    }
-
-                    svgString += "z";
-                    return svgString;
+                function genPathString(min, max, numTicks, markStart, markEnd) {
+                    return shape_back_face.commonGenPathString(min, max, numTicks, markStart, markEnd);
                 }
 
                 Component.onCompleted: {
@@ -138,7 +161,9 @@ Item {
                         return genPathString(
                             base_dial.minimum,
                             base_dial.maximum,
-                            base_dial.numTicks)
+                            base_dial.numTicks,
+                            Qt.vector3d(0.0, -98, 0),
+                            Qt.vector3d(0.0, -90, 0))
                         });
                 }
             }
@@ -375,7 +400,7 @@ Item {
                - (Math.sin(angle * Math.PI / 180.0) * (itWidth / 2))
             y: -87.5 * Math.cos(angle * Math.PI / 180.0) - (itHeight / 2)
                + (Math.cos(angle * Math.PI / 180.0) * (itHeight / 2))
-            z: 10
+            z: 1
             width: itWidth
             height: itHeight
             color: "black"
