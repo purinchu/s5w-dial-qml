@@ -170,9 +170,10 @@ Item {
             strokeColor: "black"
             strokeWidth: 1.0
             fillColor: "white"
+            capStyle: ShapePath.FlatCap
 
-            startX: -73
-            startY: 72
+            startX: -69.29646
+            startY: 69.29646
 
             PathCubic {
                 x: -19; y: 44
@@ -185,7 +186,7 @@ Item {
             }
 
             PathCubic {
-                x: 73; y: 72
+                x: -shape_back_label_base.startX; y: shape_back_label_base.startY
                 control1X: 38; control1Y: 48;
                 control2X: 52; control2Y: 55;
             }
