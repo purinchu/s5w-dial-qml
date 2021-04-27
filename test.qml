@@ -10,7 +10,7 @@ Item {
 
     property real minimum: 0.0
     property real maximum: 100.0
-    property int numTicks: 8
+    property int numTicks: 16
 
     readonly property real g_zero_scale: -130.0
     readonly property real g_full_scale:  130.0
@@ -237,19 +237,6 @@ Item {
                 useLargeArc: false
             }
         }
-
-        ShapePath {
-            strokeColor: "transparent"
-            fillColor: "black"
-
-            PathText {
-                x: -20
-                y: 52
-                font.family: "Noto Sans Condensed"
-                font.pointSize: 6.5
-                text: "Label (%)"
-            }
-        }
     }
 
     Shape {
@@ -344,6 +331,64 @@ Item {
             }
 
             PathLine { x: 19; y: 44 }
+        }
+    }
+
+    Text {
+        id: "dial_label"
+        x: -36
+        y: 45
+        z: 10
+        color: "black"
+        width: 72
+
+        font.family: "Noto Sans Condensed"
+        font.pointSize: 6.5
+        horizontalAlignment: Text.AlignHCenter
+        textFormat: Text.PlainText
+        text: "Label"
+    }
+
+    ListModel {
+        id: "label_model"
+
+        Component.onCompleted: {
+            var tickStep = (base_dial.g_full_scale - base_dial.g_zero_scale) / base_dial.numTicks;
+
+            for(var i = 0; i <= base_dial.numTicks; i++) {
+                var angle = base_dial.g_zero_scale + i * tickStep;
+                var obj = {
+                    angle: angle,
+                    itText: "" + i,
+                    itWidth: 18,
+                    itHeight: 12,
+                }
+                label_model.append(obj);
+            }
+        }
+    }
+
+    Repeater {
+        model: label_model
+
+        Text {
+            x: +87.5 * Math.sin(angle * Math.PI / 180.0) - (itWidth / 2)
+               - (Math.sin(angle * Math.PI / 180.0) * (itWidth / 2))
+            y: -87.5 * Math.cos(angle * Math.PI / 180.0) - (itHeight / 2)
+               + (Math.cos(angle * Math.PI / 180.0) * (itHeight / 2))
+            z: 10
+            width: itWidth
+            height: itHeight
+            color: "black"
+
+            font.family: "Noto Sans Condensed"
+            font.pointSize: 6.0
+            horizontalAlignment: (angle < -45.0)
+                ? Text.AlignLeft  : (angle > 45.0)
+                ? Text.AlignRight : Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+
+            text: itText
         }
     }
 }
