@@ -111,7 +111,8 @@ Item {
 
                     var x = radStart; // the loop var
 
-                    while(x <= radEnd) {
+                    for(var i = 0; i <= numTicks; i++) {
+                        var x = radStart + i * radStep;
                         // Get new rotation matrix and modify our vector
 
                         var rotMatrix = Qt.matrix4x4(
@@ -126,8 +127,6 @@ Item {
 
                         svgString += "M " + pathStart.x.toFixed(1) + " " + pathStart.y.toFixed(1);
                         svgString += "L " + pathEnd.x.toFixed(1)   + " " + pathEnd.y.toFixed(1) + " ";
-
-                        x += radStep;
                     }
 
                     svgString += "z";
