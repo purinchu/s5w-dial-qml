@@ -554,7 +554,8 @@ Item {
             var centerX = width / 2;
             var radius = 170;
             var centerY = 0.67 * height + radius; // Far below bottom of dial
-            var angle = Math.PI * (dial_label.width / (radius * 2.6)); // radians
+            var max_width = 86
+            var angle = Math.PI * 0.2 * (dial_label.width / max_width); // radians
 
             ctx.fillStyle = Qt.rgba(0, 0, 0, 1);
             drawTextAlongArc(ctx, text, centerX, centerY, radius, angle);
