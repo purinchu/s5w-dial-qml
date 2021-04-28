@@ -15,7 +15,7 @@ Item {
     property real value: 50.0
 
     Behavior on value {
-        NumberAnimation { duration: 1000; easing.type: Easing.InOutCubic }
+        NumberAnimation { duration: 800; easing.type: Easing.InOutCubic }
     }
 
     readonly property real g_zero_scale: -130.0
@@ -528,8 +528,6 @@ Item {
                 var obj = {
                     angle: angle,
                     itText: (base_dial.minimum + i * valStep).toString(),
-                    itWidth: 22,
-                    itHeight: 14,
                 }
                 label_model.append(obj);
             }
@@ -540,13 +538,13 @@ Item {
         model: label_model
 
         Text {
-            x: +86.5 * Math.sin(angle * Math.PI / 180.0) - (itWidth / 2)
-               - (Math.sin(angle * Math.PI / 180.0) * (itWidth / 2))
-            y: -86.5 * Math.cos(angle * Math.PI / 180.0) - (itHeight / 2)
-               + (Math.cos(angle * Math.PI / 180.0) * (itHeight / 2))
+            x: +86.5 * Math.sin(angle * Math.PI / 180.0) - (contentWidth / 2)
+               - (Math.sin(angle * Math.PI / 180.0) * (contentWidth / 2))
+            y: -86.5 * Math.cos(angle * Math.PI / 180.0) - (contentHeight / 2)
+               + (Math.cos(angle * Math.PI / 180.0) * (contentHeight / 2))
             z: 1
-            width: itWidth
-            height: itHeight
+            width: contentWidth
+            height: contentHeight
             color: "black"
 
             font.family: "Noto Sans Condensed"
