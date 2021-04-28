@@ -501,19 +501,64 @@ Item {
         }
     }
 
-    Text {
+    TextMetrics {
         id: "dial_label"
-        x: -36
-        y: 45
-        z: 10
-        color: "black"
-        width: 72
 
-        font.family: "Noto Sans Condensed"
-        font.pointSize: 7.9
-        horizontalAlignment: Text.AlignHCenter
-        textFormat: Text.PlainText
-        text: "Label"
+        font.family: 'Noto Sans Condensed'
+        font.pointSize: 7
+        elide: Text.ElideMiddle
+        elideWidth: 100
+
+        text: "CPU Load (%)"
+    }
+
+    Canvas {
+        id: "dial_label_render"
+        x: -1 * (width / 2)
+        y: 47
+        z: 10
+        width: 102
+        height: 24
+
+        property string text: dial_label.elidedText
+
+        renderTarget: Canvas.FramebufferObject
+        renderStrategy: Canvas.Cooperative
+
+        // See https://stackoverflow.com/a/50044657
+        function drawTextAlongArc(ctx, str, cX, cY, rad, angle)
+        {
+            ctx.save();
+            ctx.translate(cX, cY);
+            ctx.rotate(-1 * angle / 2);
+            ctx.rotate(-1 * (angle / str.length) / 2);
+
+            for(var n = 0; n < str.length; n++) {
+                ctx.rotate(angle / str.length);
+
+                ctx.save();
+                ctx.translate(0, -1 * rad);
+                ctx.fillText(str[n], 0, 0);
+                ctx.restore();
+            }
+
+            ctx.restore();
+        }
+
+        onPaint: {
+            var ctx = getContext("2d");
+
+            ctx.font = '7pt Noto Sans Condensed';
+            ctx.textAlign = 'center';
+
+            var centerX = width / 2;
+            var radius = 170;
+            var centerY = 0.67 * height + radius; // Far below bottom of dial
+            var angle = Math.PI * (dial_label.width / (radius * 2.6)); // radians
+
+            ctx.fillStyle = Qt.rgba(0, 0, 0, 1);
+            drawTextAlongArc(ctx, text, centerX, centerY, radius, angle);
+        }
     }
 
     ListModel {
