@@ -547,6 +547,10 @@ Item {
             height: contentHeight
             color: "black"
 
+            // Try to reduce height so labels near the top are not so far from
+            // edge
+            lineHeight: 0.9
+
             font.family: "Noto Sans Condensed"
             font.pointSize: 7.0
             horizontalAlignment: (angle < -45.0)
