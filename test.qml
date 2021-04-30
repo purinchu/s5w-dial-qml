@@ -15,7 +15,7 @@ Item {
     property real value: 50.0
 
     Behavior on value {
-        NumberAnimation { duration: 800; easing.type: Easing.InOutCubic }
+        NumberAnimation { duration: 800; easing.type: Easing.InOutQuad }
     }
 
     readonly property real g_zero_scale: -130.0
@@ -512,53 +512,102 @@ Item {
         text: "CPU Load (%)"
     }
 
-    Canvas {
-        id: "dial_label_render"
-        x: -1 * (width / 2)
-        y: 47
-        z: 10
-        width: 102
-        height: 24
+    TextMetrics {
+        id: "dial_label_temp"
 
-        property string text: dial_label.elidedText
+        font: dial_label.font
+        elide: dial_label.elide
+        elideWidth: dial_label.elideWidth
 
-        renderTarget: Canvas.FramebufferObject
-        renderStrategy: Canvas.Cooperative
+        text: ""
+    }
 
-        // See https://stackoverflow.com/a/50044657
-        function drawTextAlongArc(ctx, str, cX, cY, rad, angle)
-        {
-            ctx.save();
-            ctx.translate(cX, cY);
-            ctx.rotate(-1 * angle / 2);
-            ctx.rotate(-1 * (angle / str.length) / 2);
+    ListModel {
+        id: "base_label_model"
 
-            for(var n = 0; n < str.length; n++) {
-                ctx.rotate(angle / str.length);
+        property alias lblText: dial_label.text
 
-                ctx.save();
-                ctx.translate(0, -1 * rad);
-                ctx.fillText(str[n], 0, 0);
-                ctx.restore();
+        function updateLabelLetters() {
+            // Break up input label and assign each letter its (x,y) position
+            // and desired rotation
+
+            var radius = 170;
+            var max_width = 100
+            var height = 46;
+            var arcLen = Math.PI * 0.2 * (dial_label.width / max_width); // radians
+
+            base_label_model.clear();
+
+            console.log("Cramming ", dial_label.boundingRect.width, " pixels into label");
+
+            // Moves the point to the center of our fake circle whose arc we're
+            // drawing on top of
+            const ptToCenter = Qt.matrix4x4(
+                1, 0, 0, 0,
+                0, 1, 0, radius + height,
+                0, 0, 1, 0,
+                0, 0, 0, 1
+                );
+            const ptToArc = Qt.matrix4x4(
+                1, 0, 0, 0,
+                0, 1, 0, -1 * radius,
+                0, 0, 1, 0,
+                0, 0, 0, 1
+                );
+
+            for(var i = 0; i < lblText.length; i++) {
+                dial_label_temp.text = lblText.substring(0, i);
+                var subBoundWidth = dial_label_temp.advanceWidth;
+                var theta = (-1 * arcLen / 2) + arcLen * (subBoundWidth / dial_label.advanceWidth);
+
+                const rotMatrix = Qt.matrix4x4(
+                    Math.cos(theta), -Math.sin(theta), 0, 0,
+                    Math.sin(theta),  Math.cos(theta), 0, 0,
+                    0              ,  0              , 1, 0,
+                    0              ,  0              , 0, 1
+                    );
+                const arcMatrix = ptToCenter.times(rotMatrix).times(ptToArc);
+
+                const startPoint = Qt.vector3d(0, 0, 0);
+                const rotatedPointAtArc = arcMatrix.times(startPoint);
+
+                // Recalculate metrics for adv:
+                dial_label_temp.text = lblText[i];
+
+                var obj = {
+                    angle: theta * 180 / Math.PI,
+                    itText: lblText[i],
+                    adv: dial_label_temp.advanceWidth,
+                    itX: rotatedPointAtArc.x,
+                    itY: rotatedPointAtArc.y,
+                }
+                base_label_model.append(obj);
             }
-
-            ctx.restore();
         }
 
-        onPaint: {
-            var ctx = getContext("2d");
+        Component.onCompleted: {
+            updateLabelLetters()
+        }
 
-            ctx.font = '7pt Noto Sans Condensed';
-            ctx.textAlign = 'center';
+        onLblTextChanged: updateLabelLetters()
+    }
 
-            var centerX = width / 2;
-            var radius = 170;
-            var centerY = 0.67 * height + radius; // Far below bottom of dial
-            var max_width = 86
-            var angle = Math.PI * 0.2 * (dial_label.width / max_width); // radians
+    Repeater {
+        model: base_label_model
 
-            ctx.fillStyle = Qt.rgba(0, 0, 0, 1);
-            drawTextAlongArc(ctx, text, centerX, centerY, radius, angle);
+        Text {
+            x: itX
+            y: itY
+            z: 2
+            rotation: angle
+            width: adv
+            height: contentHeight
+            color: "black"
+
+            font.family: "Noto Sans Condensed"
+            font.pointSize: 7.0
+
+            text: itText
         }
     }
 
