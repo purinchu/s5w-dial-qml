@@ -504,8 +504,9 @@ Item {
     TextMetrics {
         id: "dial_label"
 
-        font.family: 'Noto Sans Condensed'
+        font.family: 'Noto Sans SemiCondensed'
         font.pointSize: 7
+        font.weight: Font.Bold
         elide: Text.ElideMiddle
         elideWidth: 100
 
@@ -604,8 +605,7 @@ Item {
             height: contentHeight
             color: "black"
 
-            font.family: "Noto Sans Condensed"
-            font.pointSize: 7.0
+            font: dial_label.font
 
             text: itText
         }
