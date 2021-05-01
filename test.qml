@@ -1,8 +1,10 @@
 import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import S5WDials 1.0
 
-Row {
+RowLayout {
     spacing: 3
+    anchors.fill: parent
 
     Rectangle {
         width: 100
@@ -14,11 +16,17 @@ Row {
         id: base_dial
         minimum: 0.0
         maximum: 100.0
+
+        Layout.minimumHeight: 100
+        Layout.minimumWidth: 100
+        Layout.fillHeight: true
+        Layout.fillWidth: true
+
         numTicks: 10
         label: "CPU Load (%)"
 
         width: 100
-        height: 100
+        height: 200
 
         useWarningArea: true
         warnLow: 80.0

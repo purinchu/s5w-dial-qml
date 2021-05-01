@@ -3,8 +3,6 @@ import QtQuick.Shapes 1.15
 
 Item {
     id: "base_dial"
-    width: 200
-    height: 200
 
     antialiasing: true
 
@@ -50,8 +48,8 @@ Item {
         Scale {
             origin.x: 0
             origin.y: 0
-            xScale: 4
-            yScale: 4
+            xScale: Math.min(height, width) / 200
+            yScale: Math.min(height, width) / 200
         }
     ]
 
