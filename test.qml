@@ -43,6 +43,40 @@ RowLayout {
         }
     }
 
+    Timer {
+        interval: 1000
+        running: true
+        repeat: true
+
+        signal sensorOutput(real val)
+
+        id: mem_avail_meter
+
+        onTriggered: {
+            var doc = new XMLHttpRequest();
+            doc.onreadystatechange = function() {
+                if(doc.readyState !== XMLHttpRequest.DONE) {
+                    return;
+                }
+
+                var resp = doc.responseText;
+                var lines = resp.split("\n");
+                var line_re = /^([a-zA-Z_]+): *([0-9]+) /;
+                for(var line of lines) {
+                    var matchGroup = line_re.exec(line);
+                    if(matchGroup && matchGroup[1] === "MemAvailable") {
+                        var avail = +matchGroup[2];
+                        mem_avail_meter.sensorOutput(avail);
+                        break;
+                    }
+                }
+            }
+
+            doc.open('GET', '/proc/meminfo');
+            doc.send();
+        }
+    }
+
     S5WDial {
         id: base_dial
         minimum: 0.0
@@ -79,7 +113,7 @@ RowLayout {
         Layout.fillWidth: true
 
         numTicks: 8
-        label: "CPU Load, Low (%)"
+        label: "CPU Load NR (%)"
 
         useDesiredArea: true
         desiredLow: 0.0
@@ -89,6 +123,35 @@ RowLayout {
             target: cpu_meter
             function onSensorOutput(value) {
                 base_dial_narrow.value = value
+            }
+        }
+    }
+
+    S5WDial {
+        id: base_dial_mem
+        minimum: 0.0
+        maximum: 16.0e6
+
+        Layout.minimumHeight: 100
+        Layout.minimumWidth: 100
+        Layout.fillHeight: true
+        Layout.fillWidth: true
+
+        numTicks: 8
+        label: "Mem Avail"
+
+        useDesiredArea: true
+        desiredLow: 12.0e6
+        desiredHigh: 16.0e6
+
+        useWarningArea: true
+        warnLow: 0.0e6
+        warnHigh: 2.0e6
+
+        Connections {
+            target: mem_avail_meter
+            function onSensorOutput(value) {
+                base_dial_mem.value = value
             }
         }
     }

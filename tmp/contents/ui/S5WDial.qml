@@ -9,6 +9,7 @@ Item {
     property real minimum: 0.0
     property real maximum: 50.0
     property int numTicks: 10
+    property int elideCount: getElideCount(base_dial.maximum)
 
     property real value: 50.0
     property string label: "Label"
@@ -36,6 +37,22 @@ Item {
     function valueToDegrees(val) {
         var t = (val - minimum) / (maximum - minimum);
         return g_zero_scale + t * (g_full_scale - g_zero_scale);
+    }
+
+    function getElideCount(curMax) {
+        console.log("Finding elide count for new maximum ", curMax);
+
+        // How many digits to take off of a value to get a label that will fit
+        // in the face?
+        var elideCount = 0;
+        var reducedMax = curMax;
+        while(reducedMax > 1000 && elideCount < 21) {
+            elideCount += 3;
+            reducedMax /= 1000;
+        }
+
+        console.log("New elide count is ", elideCount)
+        return elideCount;
     }
 
     // The face metrics are based around a geometry from (-100, -100) to (100,
@@ -73,7 +90,6 @@ Item {
 
     Shape {
         z: 1
-        id: "shape_back_face"
 
         ShapePath {
             id: "shape_back_outer_ring_fill"
@@ -168,6 +184,11 @@ Item {
                 y: -90 * Math.cos(valueToDegrees(base_dial.warnLow) * Math.PI / 180)
             }
         }
+    }
+
+    Shape {
+        z: 2
+        id: "shape_back_face_ticks"
 
         ShapePath {
             id: "shape_back_outer_ring"
@@ -244,7 +265,7 @@ Item {
 
             PathSvg {
                 function genPathString(min, max, numTicks, markStart, markEnd) {
-                    return shape_back_face.commonGenPathString(min, max, numTicks, markStart, markEnd);
+                    return shape_back_face_ticks.commonGenPathString(min, max, numTicks, markStart, markEnd);
                 }
 
                 Component.onCompleted: {
@@ -270,7 +291,7 @@ Item {
 
             PathSvg {
                 function genPathString(min, max, numTicks, markStart, markEnd) {
-                    return shape_back_face.commonGenPathString(min, max, numTicks, markStart, markEnd);
+                    return shape_back_face_ticks.commonGenPathString(min, max, numTicks, markStart, markEnd);
                 }
 
                 Component.onCompleted: {
@@ -382,7 +403,7 @@ Item {
 
     Shape {
         id: "shape_needle"
-        z: 2
+        z: 3
 
         // Full zero deflection (far left) is -130.0
         // Full max deflection (far right) is 130.0
@@ -443,7 +464,7 @@ Item {
     }
 
     Shape {
-        z: 3
+        z: 4
         id: "path_needle_cover"
 
         ShapePath {
@@ -565,7 +586,7 @@ Item {
         Text {
             x: itX
             y: itY
-            z: 2
+            z: 3
             rotation: angle
             width: adv
             height: contentHeight
@@ -580,7 +601,14 @@ Item {
     ListModel {
         id: "label_model"
 
-        Component.onCompleted: {
+        property alias min: base_dial.minimum
+        property alias max: base_dial.maximum
+        property alias numTicks: base_dial.numTicks
+        property alias elideCount: base_dial.elideCount
+
+        function updateFaceLabels() {
+            label_model.clear();
+
             var tickStep = (base_dial.g_full_scale - base_dial.g_zero_scale) / base_dial.numTicks;
             var valStep  = (base_dial.maximum - base_dial.minimum) / base_dial.numTicks;
 
@@ -588,11 +616,17 @@ Item {
                 var angle = base_dial.g_zero_scale + i * tickStep;
                 var obj = {
                     angle: angle,
-                    itText: (base_dial.minimum + i * valStep).toString(),
+                    itText: ((base_dial.minimum + i * valStep) / Math.pow(10, base_dial.elideCount)).toFixed(0),
                 }
                 label_model.append(obj);
             }
         }
+
+        Component.onCompleted: updateFaceLabels()
+        onMinChanged: updateFaceLabels()
+        onMaxChanged: updateFaceLabels()
+        onElideCountChanged: updateFaceLabels()
+        onNumTicksChanged: updateFaceLabels()
     }
 
     Repeater {
@@ -603,7 +637,7 @@ Item {
                - (Math.sin(angle * Math.PI / 180.0) * (contentWidth / 2))
             y: -86.5 * Math.cos(angle * Math.PI / 180.0) - (contentHeight / 2)
                + (Math.cos(angle * Math.PI / 180.0) * (contentHeight / 2))
-            z: 1
+            z: 2
             width: contentWidth
             height: contentHeight
             color: "black"
@@ -621,5 +655,51 @@ Item {
 
             text: itText
         }
+    }
+
+    Text {
+        x: -20
+        y: 0
+        z: 8
+        width: 40
+        id: elide_label
+        property alias elideCount: base_dial.elideCount
+        font.family: "Noto Sans Condensed"
+        font.pointSize: 7
+        visible: elideCount > 0
+        horizontalAlignment: Text.AlignHCenter
+        text: generateText(elideCount)
+        //text: Qt.binding(function() {
+        //    return generateText(elide_label.elideCount);
+        //})
+
+        function generateText(elideCount) {
+            // String.replaceAll doesn't work in QML so do it manually
+            const replacements = {
+                "0": "⁰",
+                "1": "¹",
+                "2": "²",
+                "3": "³",
+                "4": "⁴",
+                "5": "⁵",
+                "6": "⁶",
+                "7": "⁷",
+                "8": "⁸",
+                "9": "⁹",
+            };
+
+            // hack to super-script all the strings since rich text format with
+            // <sup></sup> doesn't seem to work in QML
+            const expoStr = elideCount.toString()
+                .split()
+                .map(x => replacements[x] ?? x)
+                .join();
+
+            console.log("Returning ×10" + expoStr);
+            return "×10" + expoStr;
+        }
+
+        onVisibleChanged: console.log("Elide text visibility has changed")
+        onElideCountChanged: console.log("Elide count has changed")
     }
 }

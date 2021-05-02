@@ -42,8 +42,8 @@ S5WDial {
         interval: plasmoid.configuration.dataSensorUpdateIntervalMS
 
         onNewData: {
-            if(data.hasOwnProperty('value')) {
-                base_dial.value = data.value
+            if(data.hasOwnProperty('value') && !Number.isNaN(data.value)) {
+                base_dial.value = Math.min(Math.max(data.value, base_dial.minimum), base_dial.maximum);
             }
         }
     }
