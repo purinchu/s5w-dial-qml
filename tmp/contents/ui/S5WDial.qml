@@ -40,8 +40,6 @@ Item {
     }
 
     function getElideCount(curMax) {
-        console.log("Finding elide count for new maximum ", curMax);
-
         // How many digits to take off of a value to get a label that will fit
         // in the face?
         var elideCount = 0;
@@ -51,7 +49,6 @@ Item {
             reducedMax /= 1000;
         }
 
-        console.log("New elide count is ", elideCount)
         return elideCount;
     }
 
@@ -526,8 +523,6 @@ Item {
 
             base_label_model.clear();
 
-            console.log("Cramming ", dial_label.boundingRect.width, " pixels into label");
-
             // Moves the point to the center of our fake circle whose arc we're
             // drawing on top of
             const ptToCenter = Qt.matrix4x4(
@@ -669,9 +664,6 @@ Item {
         visible: elideCount > 0
         horizontalAlignment: Text.AlignHCenter
         text: generateText(elideCount)
-        //text: Qt.binding(function() {
-        //    return generateText(elide_label.elideCount);
-        //})
 
         function generateText(elideCount) {
             // String.replaceAll doesn't work in QML so do it manually
@@ -695,11 +687,7 @@ Item {
                 .map(x => replacements[x] ?? x)
                 .join();
 
-            console.log("Returning ×10" + expoStr);
             return "×10" + expoStr;
         }
-
-        onVisibleChanged: console.log("Elide text visibility has changed")
-        onElideCountChanged: console.log("Elide count has changed")
     }
 }
