@@ -14,8 +14,14 @@ Item {
     property real value: 50.0
     property string label: "Label"
 
-    Behavior on value {
-        NumberAnimation { duration: 800; easing.type: Easing.InOutQuad }
+    // Protect actValue so it's not accessible from outside this object
+    QtObject {
+        id: d
+        property real actValue: Math.min(Math.max(base_dial.minimum, base_dial.value), base_dial.maximum)
+
+        Behavior on actValue {
+            NumberAnimation { duration: 800; easing.type: Easing.InOutQuad }
+        }
     }
 
     readonly property real g_zero_scale: -130.0
@@ -40,8 +46,6 @@ Item {
     }
 
     function getElideCount(curMax) {
-        console.log("Finding elide count for new maximum ", curMax);
-
         // How many digits to take off of a value to get a label that will fit
         // in the face?
         var elideCount = 0;
@@ -51,7 +55,6 @@ Item {
             reducedMax /= 1000;
         }
 
-        console.log("New elide count is ", elideCount)
         return elideCount;
     }
 
@@ -408,7 +411,7 @@ Item {
         // Full zero deflection (far left) is -130.0
         // Full max deflection (far right) is 130.0
         // Half-way deflection (middle) is 0.0
-        property real deflection: valueToDegrees(base_dial.value)
+        property real deflection: valueToDegrees(d.actValue)
 
         transform: [
             Rotation { origin.x: 0; origin.y: 0; angle: shape_needle.deflection }
@@ -525,8 +528,6 @@ Item {
             var arcLen = Math.PI * 0.2 * (dial_label.width / max_width); // radians
 
             base_label_model.clear();
-
-            console.log("Cramming ", dial_label.boundingRect.width, " pixels into label");
 
             // Moves the point to the center of our fake circle whose arc we're
             // drawing on top of
@@ -669,9 +670,6 @@ Item {
         visible: elideCount > 0
         horizontalAlignment: Text.AlignHCenter
         text: generateText(elideCount)
-        //text: Qt.binding(function() {
-        //    return generateText(elide_label.elideCount);
-        //})
 
         function generateText(elideCount) {
             // String.replaceAll doesn't work in QML so do it manually
@@ -695,11 +693,7 @@ Item {
                 .map(x => replacements[x] ?? x)
                 .join();
 
-            console.log("Returning ×10" + expoStr);
             return "×10" + expoStr;
         }
-
-        onVisibleChanged: console.log("Elide text visibility has changed")
-        onElideCountChanged: console.log("Elide count has changed")
     }
 }
