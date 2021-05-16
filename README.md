@@ -9,7 +9,9 @@ The result looks like this:
 
 ![Screenshot](screenshot.png)
 
-You can see what it looks like in [video form](dial-video.mkv) as well.
+In motion, it looks like this:
+
+[![Video](dial-video.webm)](dial-video.webm)
 
 ## Dependencies
 
